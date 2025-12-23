@@ -1,26 +1,45 @@
-import React, { useState } from "react";
+// src/pages/Catalog.tsx
+import { useMemo, useState } from "react";
 import ProductCard from "../components/ProductCard";
 
-const products = Array.from({ length: 100 }, (_, i) => ({
-  id: i + 1,
-  name: `Product ${i + 1}`,
-  price: (Math.random() * 100).toFixed(2),
-  description: `This is a description for Product ${i + 1}`,
-}));
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  description: string;
+};
 
 const Catalog = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.price.includes(searchTerm) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase())
+  // ✅ create products once (not regenerated on every render)
+  const products: Product[] = useMemo(
+    () =>
+      Array.from({ length: 100 }, (_, i) => ({
+        id: i + 1,
+        name: `Product ${i + 1}`,
+        price: Number((Math.random() * 100).toFixed(2)),
+        description: `This is a description for Product ${i + 1}`,
+      })),
+    []
   );
+
+  const filteredProducts = products.filter((product) => {
+    const q = searchTerm.toLowerCase().trim();
+    if (!q) return true;
+
+    return (
+      product.name.toLowerCase().includes(q) ||
+      product.description.toLowerCase().includes(q) ||
+      String(product.price).includes(q)
+    );
+  });
 
   return (
     <div className="p-4 bg-light min-vh-100">
-      <h2 className="text-center mb-4 display-5 fw-bold text-primary">Product Catalog</h2>
+      <h2 className="text-center mb-4 display-5 fw-bold text-primary">
+        Product Catalog
+      </h2>
 
       <div className="d-flex justify-content-center mb-4">
         <input

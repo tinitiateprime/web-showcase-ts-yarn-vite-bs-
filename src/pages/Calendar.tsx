@@ -1,11 +1,20 @@
-import React, { useState } from "react";
-import { Calendar as BigCalendar, dateFnsLocalizer, Event } from "react-big-calendar";
+import { useState } from "react";
+
+import {
+  Calendar as BigCalendar,
+  dateFnsLocalizer,
+  type Event,
+} from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import format from "date-fns/format";
-import parse from "date-fns/parse";
-import startOfWeek from "date-fns/startOfWeek";
-import getDay from "date-fns/getDay";
-import enUS from "date-fns/locale/en-US";
+
+import {
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+} from "date-fns";
+import { enUS } from "date-fns/locale";
+
 import { Container, Button, Modal, Form } from "react-bootstrap";
 import { Calendar2EventFill } from "react-bootstrap-icons";
 
@@ -27,7 +36,7 @@ type CalendarEvent = Event & {
   end: Date;
 };
 
-const Calendar: React.FC = () => {
+export default function Calendar() {
   const [events, setEvents] = useState<CalendarEvent[]>([
     {
       title: "Project Deadline",
@@ -43,14 +52,15 @@ const Calendar: React.FC = () => {
 
   const addEvent = () => {
     if (newTitle && newStart && newEnd) {
-      setEvents([
-        ...events,
+      setEvents((prev) => [
+        ...prev,
         {
           title: newTitle,
           start: new Date(newStart),
           end: new Date(newEnd),
         },
       ]);
+
       setShowModal(false);
       setNewTitle("");
       setNewStart("");
@@ -64,9 +74,11 @@ const Calendar: React.FC = () => {
         <h2 className="mb-4 text-primary d-flex align-items-center gap-2">
           <Calendar2EventFill /> Calendar
         </h2>
+
         <Button variant="success" onClick={() => setShowModal(true)}>
           + Add Event
         </Button>
+
         <div className="mt-4 rounded border p-2 bg-white">
           <BigCalendar
             localizer={localizer}
@@ -83,6 +95,7 @@ const Calendar: React.FC = () => {
         <Modal.Header closeButton>
           <Modal.Title>Add New Event</Modal.Title>
         </Modal.Header>
+
         <Modal.Body>
           <Form>
             <Form.Group className="mb-2">
@@ -93,6 +106,7 @@ const Calendar: React.FC = () => {
                 placeholder="Event title"
               />
             </Form.Group>
+
             <Form.Group className="mb-2">
               <Form.Label>Start</Form.Label>
               <Form.Control
@@ -101,6 +115,7 @@ const Calendar: React.FC = () => {
                 onChange={(e) => setNewStart(e.target.value)}
               />
             </Form.Group>
+
             <Form.Group>
               <Form.Label>End</Form.Label>
               <Form.Control
@@ -111,6 +126,7 @@ const Calendar: React.FC = () => {
             </Form.Group>
           </Form>
         </Modal.Body>
+
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
@@ -122,6 +138,6 @@ const Calendar: React.FC = () => {
       </Modal>
     </Container>
   );
-};
+}
 
-export default Calendar;
+

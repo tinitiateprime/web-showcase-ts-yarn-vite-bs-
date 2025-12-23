@@ -1,3 +1,4 @@
+// src/pages/DataTable.tsx
 import { useState } from "react";
 import {
   Table,
@@ -31,10 +32,11 @@ const DataTable = () => {
   const [search, setSearch] = useState<string>("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
+
   const itemsPerPage = 3;
 
   const handleDelete = (id: number) => {
-    setData(data.filter((row) => row.id !== id));
+    setData((prev) => prev.filter((row) => row.id !== id));
   };
 
   const handleEdit = (id: number) => {
@@ -42,26 +44,29 @@ const DataTable = () => {
   };
 
   const handleSave = (id: number, name: string, email: string, status: string) => {
-    const updated = data.map((row) =>
-      row.id === id ? { ...row, name, email, status } : row
+    setData((prev) =>
+      prev.map((row) => (row.id === id ? { ...row, name, email, status } : row))
     );
-    setData(updated);
     setEditingId(null);
   };
 
-  const filteredData = data.filter(
-    (row) =>
-      row.name.toLowerCase().includes(search.toLowerCase()) ||
-      row.email.toLowerCase().includes(search.toLowerCase()) ||
-      row.status.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredData = data.filter((row) => {
+    const q = search.toLowerCase().trim();
+    if (!q) return true;
+
+    return (
+      row.name.toLowerCase().includes(q) ||
+      row.email.toLowerCase().includes(q) ||
+      row.status.toLowerCase().includes(q)
+    );
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
     <section className="min-vh-100 py-5 bg-dark text-light">
@@ -71,15 +76,20 @@ const DataTable = () => {
             <h1 className="text-center fw-bold mb-3 d-flex justify-content-center align-items-center gap-2 text-warning">
               📊 Data Table
             </h1>
+
             <InputGroup>
               <InputGroup.Text className="bg-secondary text-light">
                 <FaSearch />
               </InputGroup.Text>
+
               <FormControl
                 placeholder="Search..."
                 className="bg-dark text-light border border-warning"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1); // ✅ reset to page 1 when searching
+                }}
               />
             </InputGroup>
           </Col>
@@ -88,12 +98,7 @@ const DataTable = () => {
         <Row>
           <Col>
             <div className="table-responsive rounded border border-warning shadow">
-              <Table
-                bordered
-                hover
-                variant="dark"
-                className="align-middle mb-0"
-              >
+              <Table bordered hover variant="dark" className="align-middle mb-0">
                 <thead className="bg-warning text-dark">
                   <tr>
                     <th>Name</th>
@@ -102,6 +107,7 @@ const DataTable = () => {
                     <th className="text-center">Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {paginatedData.map((row) => (
                     <tr
@@ -122,6 +128,7 @@ const DataTable = () => {
                           row.name
                         )}
                       </td>
+
                       <td>
                         {editingId === row.id ? (
                           <FormControl
@@ -135,6 +142,7 @@ const DataTable = () => {
                           row.email
                         )}
                       </td>
+
                       <td>
                         {editingId === row.id ? (
                           <FormControl
@@ -148,19 +156,19 @@ const DataTable = () => {
                           row.status
                         )}
                       </td>
+
                       <td className="text-center">
                         <Button
                           variant="outline-warning"
                           size="sm"
                           className="me-2"
                           onClick={() =>
-                            editingId === row.id
-                              ? setEditingId(null)
-                              : handleEdit(row.id)
+                            editingId === row.id ? setEditingId(null) : handleEdit(row.id)
                           }
                         >
                           <FaEdit />
                         </Button>
+
                         <Button
                           variant="outline-danger"
                           size="sm"
@@ -171,6 +179,14 @@ const DataTable = () => {
                       </td>
                     </tr>
                   ))}
+
+                  {paginatedData.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="text-center text-secondary py-4">
+                        No records found.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </Table>
             </div>
@@ -179,8 +195,9 @@ const DataTable = () => {
 
         <Row className="mt-4">
           <Col className="d-flex justify-content-center">
-            <Pagination variant="dark">
-              {[...Array(totalPages)].map((_, idx) => (
+            {/* ✅ FIX: Pagination does NOT support `variant` prop */}
+            <Pagination>
+              {Array.from({ length: totalPages }, (_, idx) => (
                 <Pagination.Item
                   key={idx + 1}
                   active={idx + 1 === currentPage}
@@ -199,3 +216,4 @@ const DataTable = () => {
 };
 
 export default DataTable;
+

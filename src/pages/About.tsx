@@ -1,9 +1,9 @@
-import React from "react";
+// src/pages/About.tsx
 import { FaLightbulb, FaCode, FaUsers, FaCheckCircle, FaEnvelope } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const About = () => {
-  const cardStyle = {
+  const cardStyle: React.CSSProperties = {
     minHeight: "100vh",
     background: "linear-gradient(to right, #fdfbfb, #ebedee)",
     display: "flex",
@@ -12,7 +12,10 @@ const About = () => {
     padding: "2rem",
   };
 
-  const iconStyle = { fontSize: "1.5rem", marginRight: "10px" };
+  const iconStyle: React.CSSProperties = {
+    fontSize: "1.5rem",
+    marginRight: "10px",
+  };
 
   return (
     <div style={cardStyle}>
@@ -73,7 +76,11 @@ const About = () => {
               <p className="card-text text-secondary">
                 To keep learning, contribute to open-source, and deliver meaningful software.
               </p>
-              <Link to="/contact" className="btn btn-outline-dark btn-sm mt-3 d-inline-flex align-items-center">
+
+              <Link
+                to="/contact"
+                className="btn btn-outline-dark btn-sm mt-3 d-inline-flex align-items-center"
+              >
                 <FaEnvelope className="me-2" />
                 Contact Me
               </Link>

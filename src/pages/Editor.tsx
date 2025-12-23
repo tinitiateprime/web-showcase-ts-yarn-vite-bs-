@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { Container, Button, Row, Col, Modal, Form } from "react-bootstrap";
-import Editor, { OnChange } from "@monaco-editor/react";
+// src/pages/Editor.tsx
+import { useState } from "react";
+import { Container, Button, Row, Col, Modal } from "react-bootstrap";
+import Editor, { type OnChange } from "@monaco-editor/react";
 import { FaSave, FaTrash, FaMoon, FaSun, FaCode } from "react-icons/fa";
 
-const AdvancedEditor: React.FC = () => {
+const AdvancedEditor = () => {
   const [code, setCode] = useState<string>("// Start typing your code here...");
   const [theme, setTheme] = useState<"vs-dark" | "light">("vs-dark");
   const [showModal, setShowModal] = useState(false);
@@ -29,8 +30,10 @@ const AdvancedEditor: React.FC = () => {
             <FaCode className="text-primary" size={28} />
             <h2 className="mb-0 fw-bold">Advanced Editor</h2>
           </Col>
+
           <Col className="text-end d-flex justify-content-end gap-2">
             <Button
+              type="button"
               variant={theme === "vs-dark" ? "light" : "dark"}
               onClick={() => setTheme(theme === "vs-dark" ? "light" : "vs-dark")}
               className="d-flex align-items-center gap-1"
@@ -47,7 +50,9 @@ const AdvancedEditor: React.FC = () => {
                 </>
               )}
             </Button>
+
             <Button
+              type="button"
               variant="success"
               onClick={() => alert("Code saved successfully!")}
               className="d-flex align-items-center gap-1"
@@ -55,7 +60,9 @@ const AdvancedEditor: React.FC = () => {
               <FaSave />
               Save
             </Button>
+
             <Button
+              type="button"
               variant="danger"
               onClick={handleClear}
               className="d-flex align-items-center gap-1"
@@ -66,7 +73,14 @@ const AdvancedEditor: React.FC = () => {
           </Col>
         </Row>
 
-        <div style={{ height: "500px", border: "1px solid #dee2e6", borderRadius: "0.375rem", overflow: "hidden" }}>
+        <div
+          style={{
+            height: "500px",
+            border: "1px solid #dee2e6",
+            borderRadius: "0.375rem",
+            overflow: "hidden",
+          }}
+        >
           <Editor
             height="100%"
             defaultLanguage="javascript"
@@ -82,14 +96,16 @@ const AdvancedEditor: React.FC = () => {
         <Modal.Header closeButton className="bg-danger text-white">
           <Modal.Title>Confirm Clear</Modal.Title>
         </Modal.Header>
+
         <Modal.Body>
           Are you sure you want to clear your code? This cannot be undone.
         </Modal.Body>
+
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button type="button" variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={confirmClear}>
+          <Button type="button" variant="danger" onClick={confirmClear}>
             Clear Code
           </Button>
         </Modal.Footer>

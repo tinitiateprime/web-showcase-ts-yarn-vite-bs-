@@ -1,134 +1,105 @@
+// src/pages/ComparisonTable.tsx
 import { useState } from "react";
-import { Container, Table, Button, Form } from "react-bootstrap";
-import {
-  FaCheckCircle,
-  FaTimesCircle,
-  FaBalanceScale,
-  FaPlus,
-  FaTrash,
-  FaEdit,
-} from "react-icons/fa";
+import { Container, Table, Form, Button } from "react-bootstrap";
+import { FaPlus, FaTrash } from "react-icons/fa";
+
+type ProductKey = "productA" | "productB" | "productC" | "productD";
 
 interface ComparisonRow {
   feature: string;
-  productA: boolean;
-  productB: boolean;
-  productC: boolean;
-  productD: boolean;
+  productA: string;
+  productB: string;
+  productC: string;
+  productD: string;
 }
 
 const initialData: ComparisonRow[] = [
-  { feature: "Free Shipping", productA: true, productB: true, productC: false, productD: true },
-  { feature: "24/7 Support", productA: true, productB: false, productC: true, productD: true },
-  { feature: "Unlimited Storage", productA: false, productB: true, productC: true, productD: false },
-  { feature: "Custom Reports", productA: true, productB: true, productC: false, productD: true },
+  { feature: "Price", productA: "₹999", productB: "₹1299", productC: "₹899", productD: "₹1499" },
+  { feature: "Storage", productA: "10 GB", productB: "50 GB", productC: "25 GB", productD: "100 GB" },
+  { feature: "Support", productA: "Email", productB: "24/7 Chat", productC: "Email", productD: "24/7 Phone" },
 ];
 
-const Comparison = () => {
-  const [data, setData] = useState<ComparisonRow[]>(initialData);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [newFeature, setNewFeature] = useState<string>("");
+export default function ComparisonTable() {
+  const [rows, setRows] = useState<ComparisonRow[]>(initialData);
+  const [newFeature, setNewFeature] = useState("");
 
-  const handleAddFeature = () => {
-    if (newFeature.trim()) {
-      setData([
-        ...data,
-        {
-          feature: newFeature,
-          productA: false,
-          productB: false,
-          productC: false,
-          productD: false,
-        },
-      ]);
-      setNewFeature("");
-    }
+  // ✅ FIX: accept both input + textarea (react-bootstrap Form.Control can be either)
+  const handleCellChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    rowIndex: number,
+    field: keyof ComparisonRow
+  ) => {
+    const updated = [...rows];
+    updated[rowIndex][field] = e.target.value;
+    setRows(updated);
   };
 
-  const handleDeleteRow = (index: number) => {
-    setData(data.filter((_, idx) => idx !== index));
+  const addRow = () => {
+    const feature = newFeature.trim();
+    if (!feature) return;
+
+    setRows((prev) => [
+      ...prev,
+      { feature, productA: "", productB: "", productC: "", productD: "" },
+    ]);
+    setNewFeature("");
   };
 
-  const toggleBoolean = (rowIndex: number, product: keyof Omit<ComparisonRow, "feature">) => {
-    const updated = [...data];
-    updated[rowIndex][product] = !updated[rowIndex][product];
-    setData(updated);
+  const deleteRow = (rowIndex: number) => {
+    setRows((prev) => prev.filter((_, i) => i !== rowIndex));
   };
 
-  const handleFeatureChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
-    const updated = [...data];
-    updated[idx].feature = e.target.value;
-    setData(updated);
-  };
+  const productKeys: ProductKey[] = ["productA", "productB", "productC", "productD"];
 
   return (
     <section className="min-vh-100 py-5 bg-dark text-light">
       <Container>
-        <div className="mb-4 text-center">
-          <h1 className="fw-bold text-warning d-flex justify-content-center align-items-center gap-2">
-            <FaBalanceScale /> Product Comparison
-          </h1>
-          <p className="text-secondary">Compare features side by side interactively</p>
-        </div>
+        <h2 className="mb-3 fw-bold text-warning">Comparison Table</h2>
 
         <div className="table-responsive rounded border border-warning shadow">
           <Table bordered hover variant="dark" className="align-middle mb-0">
             <thead className="bg-warning text-dark">
               <tr>
-                <th>Feature</th>
+                <th style={{ width: 220 }}>Feature</th>
                 <th>Product A</th>
                 <th>Product B</th>
                 <th>Product C</th>
                 <th>Product D</th>
-                <th>Actions</th>
+                <th style={{ width: 90 }} className="text-center">
+                  Action
+                </th>
               </tr>
             </thead>
+
             <tbody>
-              {data.map((row, idx) => (
-                <tr
-                  key={idx}
-                  style={{ transition: "background-color 0.3s" }}
-                  className="hover bg-secondary-subtle"
-                >
+              {rows.map((row, rowIndex) => (
+                <tr key={rowIndex}>
                   <td>
-                    {editingIndex === idx ? (
+                    <Form.Control
+                      size="sm"
+                      className="bg-secondary text-light"
+                      value={row.feature}
+                      onChange={(e) => handleCellChange(e, rowIndex, "feature")}
+                    />
+                  </td>
+
+                  {productKeys.map((key) => (
+                    <td key={key}>
                       <Form.Control
                         size="sm"
                         className="bg-secondary text-light"
-                        value={row.feature}
-                        onChange={(e) => handleFeatureChange(e, idx)}
-                        onBlur={() => setEditingIndex(null)}
-                        autoFocus
+                        value={row[key]}
+                        onChange={(e) => handleCellChange(e, rowIndex, key)}
+                        placeholder="Enter value"
                       />
-                    ) : (
-                      <span
-                        onClick={() => setEditingIndex(idx)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        {row.feature}
-                        <FaEdit className="text-light ms-2" />
-                      </span>
-                    )}
-                  </td>
-                  {(["productA", "productB", "productC", "productD"] as const).map((product) => (
-                    <td
-                      key={product}
-                      className="text-center"
-                      onClick={() => toggleBoolean(idx, product)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      {row[product] ? (
-                        <FaCheckCircle className="text-success fs-5" />
-                      ) : (
-                        <FaTimesCircle className="text-danger fs-5" />
-                      )}
                     </td>
                   ))}
+
                   <td className="text-center">
                     <Button
                       variant="outline-danger"
                       size="sm"
-                      onClick={() => handleDeleteRow(idx)}
+                      onClick={() => deleteRow(rowIndex)}
                     >
                       <FaTrash />
                     </Button>
@@ -146,15 +117,12 @@ const Comparison = () => {
             onChange={(e) => setNewFeature(e.target.value)}
             className="w-100 w-md-auto bg-secondary text-light border border-warning"
           />
-          <Button variant="warning" onClick={handleAddFeature}>
+          <Button variant="warning" onClick={addRow}>
             <FaPlus className="me-1" />
-            Add Feature
+            Add Row
           </Button>
         </div>
       </Container>
     </section>
   );
-};
-
-export default Comparison;
-
+}
